@@ -1,6 +1,6 @@
 # Strom
 
-Simple streaming state manager. Inspired by [meiosis pattern](https://meiosis.js.org).
+Simple streaming state manager. Inspired by [meiosis pattern](https://meiosis.js.org). Browser must support `new Map`, `new Set`, and `Symbol`.
 
 ```
 npm install -S strom
