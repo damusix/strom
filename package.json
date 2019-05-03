@@ -1,0 +1,28 @@
+{
+  "name": "strom",
+  "version": "0.1.0",
+  "description": "A stream based state manager inspired by meiosis pattern",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/damusix/strom.git"
+  },
+  "keywords": [
+    "stream",
+    "state",
+    "manager",
+    "meiosis"
+  ],
+  "author": "Danilo Alonso",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/damusix/strom/issues"
+  },
+  "homepage": "https://github.com/damusix/strom#readme",
+  "devDependencies": {
+    "ansi-colors": "^3.2.4"
+  }
+}
