@@ -155,6 +155,12 @@ const stream = (state = {}) => {
      */
     manager.states = () => Array.from(states.values());
 
+    /**
+     * Returns current state
+     * @returns {*} Current state
+     */
+     manager.state = () => state;
+
     return manager;
 };
 

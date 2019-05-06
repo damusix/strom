@@ -41,7 +41,7 @@ class MyApp extends Component {
         this.state = props.state;
 
         // When states are pushed, setState
-        update.listen((nextState, prevState) => {
+        stream.listen((nextState, prevState) => {
 
             this.setState(nextState);
         });

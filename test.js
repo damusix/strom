@@ -23,48 +23,59 @@ const stub = {};
 
 it ('creates a stream and returns update function', () => {
 
-    stub.update = strom();
-    return typeof stub.update === 'function';
+    stub.stream = strom();
+    return typeof stub.stream === 'function';
 });
 
 it ('has modifying functions', () => {
 
-    const hasModify = typeof stub.update.modify === 'function';
-    const hasUnmodify = typeof stub.update.unmodify === 'function';
+    const hasModify = typeof stub.stream.modify === 'function';
+    const hasUnmodify = typeof stub.stream.unmodify === 'function';
 
     return hasModify && hasUnmodify;
 });
 
 it ('has listening functions', () => {
 
-    const hasListen = typeof stub.update.listen === 'function';
-    const hasUnlisten = typeof stub.update.unlisten === 'function';
+    const hasListen = typeof stub.stream.listen === 'function';
+    const hasUnlisten = typeof stub.stream.unlisten === 'function';
 
     return hasListen && hasUnlisten;
 });
 
 it ('has states function', () => {
 
-    return typeof stub.update.states === 'function';
+    return typeof stub.stream.states === 'function';
 });
 
 it ('returns array of states', () => {
 
-    const states = stub.update.states();
+    const states = stub.stream.states();
     return states.constructor === Array;
+});
+
+it ('has state function', () => {
+
+    return typeof stub.stream.state === 'function';
+});
+
+it ('returns current state', () => {
+
+    const state = stub.stream.state();
+    return typeof state === 'object';
 });
 
 it ('sets empty object as default state', () => {
 
-    const state = stub.update.states()[0];
+    const state = stub.stream.states()[0];
     return state.constructor === Object;
 });
 
 it ('sets passed state in state holder', () => {
 
     const check = { test: true };
-    stub.update = strom(check);
-    const state = stub.update.states()[0];
+    stub.stream = strom(check);
+    const state = stub.stream.states()[0];
     return state === check;
 });
 
@@ -76,8 +87,8 @@ it ('adds a modifer and executes it immediately', () => {
         return state;
     };
 
-    stub.update.modify(stub.modifier);
-    const state = stub.update.states()[0];
+    stub.stream.modify(stub.modifier);
+    const state = stub.stream.states()[0];
 
     return state.updated === true && state.test === true;
 });
@@ -85,17 +96,17 @@ it ('adds a modifer and executes it immediately', () => {
 
 it ('modifies a new state', () => {
 
-    stub.update({ updated: false });
-    const state = stub.update.states().pop();
+    stub.stream({ updated: false });
+    const state = stub.stream.states().pop();
 
     return state.updated === true;
 });
 
 it ('removes a modifier', () => {
 
-    stub.update.unmodify(stub.modifier);
-    stub.update({ updated: false });
-    const state = stub.update.states().pop();
+    stub.stream.unmodify(stub.modifier);
+    stub.stream({ updated: false });
+    const state = stub.stream.states().pop();
 
     return state.updated === false;
 });
@@ -103,15 +114,15 @@ it ('removes a modifier', () => {
 it ('makes state passed value if no modifiers exist', () => {
 
     const check = { blyat: true };
-    stub.update(check);
-    const state = stub.update.states().pop();
+    stub.stream(check);
+    const state = stub.stream.states().pop();
 
     return state.updated === undefined && state === check;
 });
 
 it ('does not update state if modifier returns ignore', () => {
 
-    stub.update = strom({ oy: true });
+    stub.stream = strom({ oy: true });
     stub.modifier = function (next, prev, ignore) {
 
         if (prev) {
@@ -122,11 +133,11 @@ it ('does not update state if modifier returns ignore', () => {
         return ignore;
     };
 
-    stub.update.modify(stub.modifier);
+    stub.stream.modify(stub.modifier);
 
     const check = { blyot: true };
-    stub.update(check);
-    const state = stub.update.states().pop();
+    stub.stream(check);
+    const state = stub.stream.states().pop();
 
     return state.didUpdate === undefined &&
         state.blyot === undefined &&
@@ -136,7 +147,7 @@ it ('does not update state if modifier returns ignore', () => {
 it ('listens for changes', () => {
 
     const start = { oy: true };
-    stub.update = strom(start);
+    stub.stream = strom(start);
     stub.modifier = (next, prev) => ({
         ...prev,
         ...next
@@ -147,12 +158,12 @@ it ('listens for changes', () => {
         stub.prev = prev;
     };
 
-    stub.update.modify(stub.modifier);
+    stub.stream.modify(stub.modifier);
 
-    stub.update.listen(stub.listener);
+    stub.stream.listen(stub.listener);
 
     const check = { blyot: true };
-    stub.update(check);
+    stub.stream(check);
 
     return stub.next.oy === true &&
             stub.next.blyot === true &&
@@ -164,8 +175,8 @@ it ('removes listener', () => {
     stub.next = null;
     stub.prev = null;
 
-    stub.update.unlisten(stub.listener);
-    stub.update({ pepe: true });
+    stub.stream.unlisten(stub.listener);
+    stub.stream({ pepe: true });
 
     return stub.next === null && stub.prev === null;
 })
