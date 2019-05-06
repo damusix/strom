@@ -1,6 +1,6 @@
 {
   "name": "strom",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A stream based state manager inspired by meiosis pattern",
   "main": "index.js",
   "scripts": {
