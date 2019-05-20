@@ -163,6 +163,14 @@ stream.listen(listener);
 stream.unlisten(listener);
 ```
 
+##### `stream.state`
+
+Returns current state.
+
+```js
+const arr = stream.state();
+```
+
 ##### `stream.states`
 
 Returns an array of previous states.
