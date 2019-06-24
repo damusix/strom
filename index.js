@@ -1,4 +1,5 @@
 const isUndefined = (val) => val === undefined;
+const undefOrNull = (val) => isUndefined(val) || val === null;
 const assertFunction = (msg, func) => {
 
     if (typeof func !== 'function') {
@@ -10,12 +11,30 @@ const assertFunction = (msg, func) => {
 // For skipping state modification
 const IGNORE = Symbol();
 
+const defaultOptions = {
+    // Immediately execute state modifiers when declared
+    execNewModifiers: true,
+
+    // Immediately execute listeners when declared
+    execNewListeners: false
+}
+
 /**
  * Creates a stream of states.
  * @param {*} state An initial state
  * @returns {function} A function that pushes updates to state
  */
-const stream = (state = {}) => {
+const stream = (state = {}, options = {}) => {
+
+    if (undefOrNull(state)) {
+
+        state = {};
+    }
+
+    options = {
+        ...defaultOptions,
+        ...options
+    };
 
     // Holds state modifiers
     const modifiers = new Set();
@@ -84,8 +103,8 @@ const stream = (state = {}) => {
 
         assertFunction('modifier', func);
 
-        // If initial state was passed, execute function with state
-        if (!isUndefined(state)) {
+        // If initial state was passed, execute function with state if option enabled
+        if (!isUndefined(state) && options.execNewModifiers) {
 
             func(state);
         }
@@ -123,8 +142,8 @@ const stream = (state = {}) => {
 
         assertFunction('listener', func);
 
-        // If initial state was passed, execute function with state
-        if (!isUndefined(state)) {
+        // If initial state was passed, execute function with state if option enabled
+        if (!isUndefined(state) && options.execNewListeners) {
 
             func(state);
         }

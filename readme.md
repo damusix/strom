@@ -10,7 +10,14 @@ npm install -S strom
 
 ```jsx
 
-const stream = strom({ ...initialState });
+const stream = strom({ ...initialState }, {
+
+    // Immediately execute state modifiers when declared
+    execNewModifiers: true,
+
+    // Immediately execute listeners when declared
+    execNewListeners: false
+});
 
 // Add a modifier
 stream.modify((value, state) => {
