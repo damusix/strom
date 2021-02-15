@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "lib": ["es6"],
+      "module": "esnext",
+      "moduleResolution": "node",
+      "noEmitOnError": false,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "pretty": true,
+      "sourceMap": true,
+      "target": "ESNext",
+      "outDir": "dist",
+      "rootDir": "."
+    },
+    "exclude": [
+      "test.ts"
+    ],
+    "paths": {
+      "tslib" : ["./node_modules/tslib/tslib.d.ts"]
+    }
+}

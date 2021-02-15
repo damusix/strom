@@ -1,4 +1,4 @@
-# Strom
+# Strom <!-- omit in toc -->
 
 Simple streaming state manager. Inspired by [meiosis pattern](https://meiosis.js.org). Browser must support `new Map`, `new Set`, and `Symbol`.
 
@@ -6,18 +6,33 @@ Simple streaming state manager. Inspired by [meiosis pattern](https://meiosis.js
 npm install -S strom
 ```
 
-### Usage
+- [Usage](#usage)
+- [API](#api)
+    - [`update(value: any): this;`](#updatevalue-any-this)
+    - [`modify(func: Function): this;`](#modifyfunc-function-this)
+    - [`unmodify(func: Function): this;`](#unmodifyfunc-function-this)
+    - [`listen(func: Function): this;`](#listenfunc-function-this)
+    - [`unlisten(func: Function): this;`](#unlistenfunc-function-this)
+    - [`states(): any[];`](#states-any)
+    - [`state(): any;`](#state-any)
+    - [`flushStates(): void;`](#flushstates-void)
+    - [`resetState(): void;`](#resetstate-void)
+    - [`prevState(): void;`](#prevstate-void)
+    - [`nextState(): void;`](#nextstate-void)
+    - [`clone(): Strom;`](#clone-strom)
+- [Types](#types)
+
+## Usage
 
 ```jsx
 
-const stream = strom({ ...initialState }, {
+const { Strom } = require('strom');
 
-    // Immediately execute state modifiers when declared
-    execNewModifiers: true,
+// or
 
-    // Immediately execute listeners when declared
-    execNewListeners: false
-});
+import Strom from 'strom';
+
+const stream = new Strom({ ...initialState }, { ...opts });
 
 // Add a modifier
 stream.modify((value, state) => {
@@ -32,156 +47,201 @@ stream.modify((value, state) => {
 // Simple actions object store that pushes states to stream
 const actions = {
     getThings: () => {
-        stream({ things: [1,2,3] });
+        stream.update({ things: [1,2,3] });
     },
     breakThings: () => {
-        stream({ broken: true });
+        stream.update({ broken: true });
     }
 };
 
-class MyApp extends Component {
+export default (props) => {
 
-    constructor(props) {
-        super(props);
+    const [appState, setAppState] = useState(props.appState);
 
-        // Set initial state
-        this.state = props.state;
+    useEffect(() => {
 
-        // When states are pushed, setState
-        stream.listen((nextState, prevState) => {
+        const listener = (nextState) => {
 
-            this.setState(nextState);
-        });
+            setAppState(nextState);
+        };
+
+        stream.listen(listener);
+
+        return () => stream.unlisten(listener);
+    }, [])
+
+    useEffect(() => {
+
+        actions.getThings();
+    })
+
+    return <>
+        <My2ndComponent { ...props, state } />
+        <My3rdComponent { ...props, state } />
+    </>
+}
+```
+
+
+## API
+
+
+---
+#### `update(value: any): this;`
+
+Push an update
+
+
+---
+#### `modify(func: Function): this;`
+
+Function that modifies state.
+Pass a function declaration for ability to return `this.IGNORE`
+
+returns Strom instance
+
+```js
+stream.modify((value, state, ignore) => {
+
+    if (value.dontModify) {
+        return ignore;
     }
 
-    componentDidMount() {
-
-        // Get things after mount
-        this.actions.getThings();
-    }
-
-    render() {
-
-        // Pass state and actions down to child components
-        const { state } = this;
-        return <>
-            <My2ndComponent { ...props, state } />
-            <My3rdComponent { ...props, state } />
-        </>
-    }
-};
-
-// Initialize component with state
-<MyApp state={ ...initialState } actions={ actions } />
-
-```
-
-
-### API
-
-To access the API you must execute `strom` in order to create a state stream. If you do not pass an initial value, an empty object will be used.
-
-```js
-const stream = strom();
-// typeof stream === 'function'
-```
-
-You can now pass states to your stream.
-
-```js
-stream({ abc: 123 });
-```
-
-
-##### `stream.modify`
-
-Adds a state modifier. State will be modified to this function's return value everytime a new state is passed.
-
-```js
-stream.modify((value, currentState) => {
-
-    value.justBecause = true;
-
-    return value;
-});
-```
-
-Alternative, you can create modifiers that don't actually modify state. Instead, they just introspect the current state. You accomplish this by returning then 3rd argument passed to modifiers, `ignore`. This may also be useful for cases when you don't want to update state because of conditions.
-
-```js
-stream.modify(function (value, currentState, ignore) {
-
-    pushToInspector(currentState);
-
-    return ignore;
+    return merge(state, value);
 })
 ```
 
-##### `stream.unmodify`
 
-Removes a modifier function from stream.
+---
+#### `unmodify(func: Function): this;`
+
+Removes a modifier when passed existing function reference
+
+returns Strom instance
 
 
-```js
-const modifier = (value, currentState) => {
+---
+#### `listen(func: Function): this;`
 
-    return {
-        ...currentState,
-        ...value
-    }
+Adds a listener that runs when stream update is executed
+
+returns Strom instance
+
+
+
+---
+#### `unlisten(func: Function): this;`
+
+Removes a listener when passed existing function reference
+
+returns Strom instance
+
+
+
+---
+#### `states(): any[];`
+
+Returns an array of all states
+
+
+
+---
+#### `state(): any;`
+
+Returns current state
+
+
+---
+#### `flushStates(): void;`
+
+Cleans all stored states, except current state.
+State is reset if it wasn't on the current state
+
+
+
+---
+#### `resetState(): void;`
+
+Sets the current state back to whatever it was. Useful for
+where stepping forward and backwards between states and then
+returning to your original state.
+
+
+
+---
+#### `prevState(): void;`
+
+Go back 1 state. Does not work if `flushOnRead` is true.
+
+
+
+
+---
+#### `nextState(): void;`
+
+Go forward 1 state. Does not work if `flushOnRead` is true.
+
+
+
+---
+#### `clone(): Strom;`
+
+Creates a child instance of Strom. Receives parent's modifiers
+and will update whever parent is updated. Adding modifiers and
+listeners will not affect parent Strom instance.
+
+returns `{Strom} Strom instance
+
+
+## Types
+
+```ts
+type StromOptions = {
+    /** Immediately execute state modifiers when added */
+    execNewModifiers?: boolean;
+    /** Immediately execute listeners when added */
+    execNewListeners?: boolean;
+    /** How many states changes to keep in memory */
+    statesToKeep?: number;
+    /** Removes states after reading */
+    flushOnRead?: boolean;
+    /** Parent stream. Only used for cloning. */
+    parent?: Strom;
 };
+```
 
-// adds the modifier
-stream.modify(modifier);
-
-// removes the modifier
-stream.unmodify(modifier);
+```ts
+type ModifierFunction = (value: any, state?: any, ignore?: symbol) => any;
 ```
 
 
-##### `stream.listen`
-
-Attaches a listener function. Each listener is executed and passed `currentState` and `previousState` after modifiers have modified the state.
-
-```js
-stream.listen((currentState, previousState) => {
-
-    this.setState(currentState);
-})
-```
-
-##### `stream.unlisten`
-
-Removes a listener function from stream. This is useful for cases where you have to unmount a component, or no longer want the side effect of having this listener executing.
-
-
-```js
-const listener = (value, currentState) => {
-
-    value.justBecause = true;
-
-    return value;
-};
-
-// adds the listener
-stream.listen(listener);
-
-// removes the listener
-stream.unlisten(listener);
-```
-
-##### `stream.state`
-
-Returns current state.
-
-```js
-const arr = stream.state();
-```
-
-##### `stream.states`
-
-Returns an array of previous states.
-
-```js
-const arr = stream.states();
+```ts
+class Strom {
+    _options: StromOptions | null;
+    _sid: number;
+    stateId(): number;
+    _state: any;
+    _modifiers: Set<ModifierFunction> | null;
+    _listeners: Set<Function> | null;
+    _states: Map<number, any> | null;
+    _currentState: number | null;
+    _latestState: number | null;
+    _parent: Strom | null;
+    constructor(state?: any, options?: StromOptions);
+    private _addState;
+    private _notifyListeners;
+    update(value: any): this;
+    modify(func: Function): this;
+    unmodify(func: Function): this;
+    listen(func: Function): this;
+    unlisten(func: Function): this;
+    states(): any[];
+    state(): any;
+    flushStates(): void;
+    resetState(): void;
+    private _stateStepper;
+    prevState(): void;
+    nextState(): void;
+    clone(): Strom;
+}
 ```
