@@ -9,7 +9,7 @@ const assertFunction = (msg: String, func: Function) => {
 };
 
 
-type StromOptions = {
+export type StromOptions = {
 
     /** Immediately execute state modifiers when added */
     execNewModifiers?: boolean;
@@ -27,7 +27,7 @@ type StromOptions = {
     parent?: Strom
 };
 
-type ModifierFunction = (value: any, state?: any, ignore?: symbol) => any
+export type ModifierFunction = (value: any, state?: any, ignore?: symbol) => any
 
 // For skipping state modification
 const IGNORE = Symbol();
