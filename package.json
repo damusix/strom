@@ -1,6 +1,6 @@
 {
   "name": "strom",
-  "version": "1.0.0",
+  "version": "1.0.0-next.2",
   "description": "A stream based state manager inspired by meiosis pattern",
   "main": "dist/umd.js",
   "module": "dist/cjs.js",
